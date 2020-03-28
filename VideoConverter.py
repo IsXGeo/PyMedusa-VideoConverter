@@ -17,7 +17,7 @@ OUT_EXTENSION = ".mp4"
 MKV_EXTENSION = ".mkv"
 TEMP_EXTENSION = ".tmp.mp4"
 
-# Video Quality - Variable bitrate
+# Video Quality - Variable bit rate
 PRESET = "fast"
 CRF = "22"
 
