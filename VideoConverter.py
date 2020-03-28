@@ -8,8 +8,8 @@ import datetime
 
 DEFAULT_VIDEO_CODEC = "h264"
 DEFAULT_AUDIO_CODEC = "aac"
-MAX_WIDTH = 854
-MAX_HEIGHT = 480
+MAX_WIDTH = 854  # Dimensions need to be an even number
+MAX_HEIGHT = 480  # Dimensions need to be an even number
 
 OUT_VLIB = "libx264"
 OUT_ALIB = "aac"
