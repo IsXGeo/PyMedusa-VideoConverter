@@ -6,21 +6,25 @@ import sys
 import subprocess
 import datetime
 
-DEFAULT_VIDEO_CODEC = "h264"
-DEFAULT_AUDIO_CODEC = "aac"
-MAX_WIDTH = 854  # Dimensions need to be an even number
-MAX_HEIGHT = 480  # Dimensions need to be an even number
+# Settings
+DESIRED_VIDEO_CODEC = "h264"  # Default is h264
+DESIRED_AUDIO_CODEC = "aac"  # Default is aac
 
-OUT_VLIB = "libx264"
-OUT_ALIB = "aac"
-OUT_EXTENSION = ".mp4"
-MKV_EXTENSION = ".mkv"
-TEMP_EXTENSION = ".tmp.mp4"
+# Why so low resolution?
+# The designer likes to save storage space and does not mind the lower resolution
+MAX_WIDTH = 854  # Default is 854
+MAX_HEIGHT = 480  # Default is 480
 
-# Video Quality - Variable bit rate
-PRESET = "fast"
-CRF = "22"
+OUT_VLIB = "libx264"  # Default is libx264
+OUT_ALIB = "aac"  # Default is aac
+OUT_EXTENSION = ".mp4"  # Default is .mp4
+MKV_EXTENSION = ".mkv"  # Default is .mkv
+TEMP_EXTENSION = ".tmp.mp4"  # Default is .tmp.mp4
 
+PRESET = "fast"  # Visit https://trac.ffmpeg.org/wiki/Encode/H.264
+CRF = "22"  # For an explanation on what do to with these variables
+
+# Don't touch this stuff unless you know what you're doing
 
 def main(args):
     # log file	====================================================================================
@@ -141,12 +145,12 @@ def main(args):
     if inExtension == OUT_EXTENSION:
         logfile.write("  MP4:\n")
 
-        if inVideoCodec != DEFAULT_VIDEO_CODEC:
+        if inVideoCodec != DESIRED_VIDEO_CODEC:
             logfile.write("    wrong video codec; transcode required\n")
             outVideoCodec = OUT_VLIB
             doTranscode = True
 
-        if inAudioCodec != DEFAULT_AUDIO_CODEC:
+        if inAudioCodec != DESIRED_AUDIO_CODEC:
             logfile.write("    wrong audio codec")
 
             if not doTranscode:
@@ -164,11 +168,11 @@ def main(args):
         logfile.write("  MKV: transcode required\n")
         doTranscode = True
 
-        if inVideoCodec != DEFAULT_VIDEO_CODEC:
+        if inVideoCodec != DESIRED_VIDEO_CODEC:
             logfile.write("    wrong video codec\n")
             outVideoCodec = OUT_VLIB
 
-        if inAudioCodec != DEFAULT_AUDIO_CODEC:
+        if inAudioCodec != DESIRED_AUDIO_CODEC:
             logfile.write("    wrong audio codec\n")
             outAudioCodec = OUT_ALIB
 
