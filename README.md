@@ -1,6 +1,6 @@
 # VideoConverter
 
-**Video Converter** is a script designed to be run with pymedusa and ffmpeg on linux
+**Video Converter** is a script designed to be run with pymedusa and ffmpeg on linux, other systems may or may not work
 - https://pymedusa.com/
 - https://www.ffmpeg.org/
  

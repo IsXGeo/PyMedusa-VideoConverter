@@ -26,6 +26,7 @@ CRF = "22"  # For an explanation on what do to with these variables
 
 # Don't touch this stuff unless you know what you're doing
 
+
 def main(args):
     # log file	====================================================================================
     LogFilename = os.path.splitext(args[0])[0] + ".log"
