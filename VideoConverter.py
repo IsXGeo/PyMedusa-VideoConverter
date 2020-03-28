@@ -17,16 +17,20 @@ OUT_EXTENSION = ".mp4"
 MKV_EXTENSION = ".mkv"
 TEMP_EXTENSION = ".tmp.mp4"
 
+# Video Quality - Variable bitrate
+PRESET = "fast"
+CRF = "22"
+
 
 def main(args):
     # log file	====================================================================================
-    logfilename = os.path.splitext(args[0])[0] + ".log"
+    LogFilename = os.path.splitext(args[0])[0] + ".log"
 
     # ensure file exists
-    subprocess.call('/usr/bin/touch "' + logfilename + '"', shell=True)
+    subprocess.call('/usr/bin/touch "' + LogFilename + '"', shell=True)
 
     # open for append
-    logfile = open(logfilename, "a")
+    logfile = open(LogFilename, "a")
 
     # new header
     logfile.write("****************************************************************************\n")
@@ -34,55 +38,55 @@ def main(args):
     logfile.write("\n")
 
     # process input file	========================================================================
-    infilename = args[1]
+    inFilename = args[1]
 
-    logfile.write("input file: " + infilename + "\n")
+    logfile.write("input file: " + inFilename + "\n")
 
     # ensure input file exists
-    if not os.path.isfile(infilename):
+    if not os.path.isfile(inFilename):
         logfile.write("<-- input file does not exist; aborting\n")
 
         return 1
 
-    inExtension = os.path.splitext(infilename)[-1].lower()
-    commandoutput = os.path.splitext(args[0])[0] + ".output"
+    inExtension = os.path.splitext(inFilename)[-1].lower()
+    commandOutput = os.path.splitext(args[0])[0] + ".output"
 
-    if os.path.isfile(commandoutput):
-        os.remove(commandoutput)
+    if os.path.isfile(commandOutput):
+        os.remove(commandOutput)
 
     # command to extract video stream details
     command = '/usr/local/bin/ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name -of ' \
-              'default=noprint_wrappers=1 "' + infilename + '" >"' + commandoutput + '" '
+              'default=noprint_wrappers=1 "' + inFilename + '" >"' + commandOutput + '" '
 
     logfile.write("  command: " + command + "\n")
 
     rv = subprocess.call(command, shell=True)
 
-    if not os.path.isfile(commandoutput):
+    if not os.path.isfile(commandOutput):
         logfile.write("<-- no ffprobe(v) output generated; aborting\n")
 
         return 1
 
     # fetch command output
-    with open(commandoutput) as commandfile:
-        lines = commandfile.readlines()
+    with open(commandOutput) as commandFile:
+        lines = commandFile.readlines()
 
     # log command output if it failed
     if rv != 0:
         logfile.writelines(lines)
 
     # delete command output
-    os.remove(commandoutput)
+    os.remove(commandOutput)
 
     # initialise the video properties we need
-    invideocodec = ""
+    inVideoCodec = ""
     inHeight = 0
     inWidth = 0
 
     # extract video properties from command output
     for line in lines:
         if line[:11] == "codec_name=":
-            invideocodec = line[11:].lower().rstrip()
+            inVideoCodec = line[11:].lower().rstrip()
 
         elif line[:6] == "width=":
             inWidth = int(line[6:].rstrip())
@@ -92,27 +96,27 @@ def main(args):
 
     #  command to extract audio stream details
     command = '/usr/local/bin/ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of ' \
-              'default=noprint_wrappers=1 "' + infilename + '" >"' + commandoutput + '" '
+              'default=noprint_wrappers=1 "' + inFilename + '" >"' + commandOutput + '" '
 
     # logfile.write("  command: " + command + "\n")
 
     rv = subprocess.call(command, shell=True)
 
-    if not os.path.isfile(commandoutput):
+    if not os.path.isfile(commandOutput):
         logfile.write("<-- no ffprobe(a) output generated; aborting\n")
 
         return 1
 
     # fetch command output
-    with open(commandoutput) as commandfile:
-        lines = commandfile.readlines()
+    with open(commandOutput) as commandFile:
+        lines = commandFile.readlines()
 
     # log command output if it failed
     if rv != 0:
         logfile.writelines(lines)
 
     # delete command output
-    os.remove(commandoutput)
+    os.remove(commandOutput)
 
     # initialise audio properties
     inAudioCodec = ""
@@ -123,7 +127,7 @@ def main(args):
             inAudioCodec = line[11:].lower().rstrip()
 
     # log input file properties
-    logfile.write("  > video codec = " + invideocodec + "; audio codec = " + inAudioCodec + "; dimensions = " + str(
+    logfile.write("  > video codec = " + inVideoCodec + "; audio codec = " + inAudioCodec + "; dimensions = " + str(
         inWidth) + "x" + str(inHeight) + "\n")
 
     # check what processing is needed	===============================================================
@@ -137,7 +141,7 @@ def main(args):
     if inExtension == OUT_EXTENSION:
         logfile.write("  MP4:\n")
 
-        if invideocodec != DEFAULT_VIDEO_CODEC:
+        if inVideoCodec != DEFAULT_VIDEO_CODEC:
             logfile.write("    wrong video codec; transcode required\n")
             outVideoCodec = OUT_VLIB
             doTranscode = True
@@ -160,7 +164,7 @@ def main(args):
         logfile.write("  MKV: transcode required\n")
         doTranscode = True
 
-        if invideocodec != DEFAULT_VIDEO_CODEC:
+        if inVideoCodec != DEFAULT_VIDEO_CODEC:
             logfile.write("    wrong video codec\n")
             outVideoCodec = OUT_VLIB
 
@@ -208,7 +212,7 @@ def main(args):
         return 0
 
     # perform transcode	=====================================================================================
-    outFilename = os.path.splitext(infilename)[0] + outExtension
+    outFilename = os.path.splitext(inFilename)[0] + outExtension
 
     logfile.write("  Output file: " + outFilename + "\n")
 
@@ -217,9 +221,9 @@ def main(args):
         os.remove(outFilename)
 
     # command to transcode the file
-    command = '/usr/local/bin/ffmpeg -i "' + infilename + '" -map 0 -codec:v ' + outVideoCodec + \
-              ' -preset fast -crf 22' + outDimensions + ' -codec:a ' + outAudioCodec + ' -sn "' + outFilename + \
-              '" -hide_banner -loglevel warning >"' + commandoutput + '"'
+    command = '/usr/local/bin/ffmpeg -i "' + inFilename + '" -map 0 -codec:v ' + outVideoCodec + \
+              ' -preset ' + PRESET + ' -crf ' + CRF + outDimensions + ' -codec:a ' + outAudioCodec + ' -sn "' + \
+              outFilename + '" -hide_banner -loglevel warning >"' + commandOutput + '"'
 
     logfile.write("  command: " + command + "\n")
 
@@ -230,24 +234,24 @@ def main(args):
         logfile.write("  successful conversion; deleting input file\n")
 
         # delete input file
-        os.remove(infilename)
+        os.remove(inFilename)
 
         # if output file needs to become the input file, rename it
         if inExtension == OUT_EXTENSION:
-            logfile.write("  renaming " + outFilename + " to " + infilename + "\n")
-            os.rename(outFilename, infilename)
+            logfile.write("  renaming " + outFilename + " to " + inFilename + "\n")
+            os.rename(outFilename, inFilename)
 
         logfile.write("<-- done\n")
     else:
         # error of some kind, write command output to log file
-        if os.path.isfile(commandoutput):
-            with open(commandoutput) as commandfile:
-                logfile.writelines(commandfile.readlines())
+        if os.path.isfile(commandOutput):
+            with open(commandOutput) as commandFile:
+                logfile.writelines(commandFile.readlines())
 
         logfile.write("<-- conversion failed\n")
 
-    if os.path.isfile(commandoutput):
-        os.remove(commandoutput)
+    if os.path.isfile(commandOutput):
+        os.remove(commandOutput)
 
     logfile.close()
 
