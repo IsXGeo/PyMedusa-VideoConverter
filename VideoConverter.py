@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-# Test
 
 import os
 import sys
@@ -11,8 +10,6 @@ import datetime
 DESIRED_VIDEO_CODEC = "h264"  # Default is h264
 DESIRED_AUDIO_CODEC = "aac"  # Default is aac
 
-# Why so low resolution?
-# The designer likes to save storage space and does not mind the lower resolution
 MAX_WIDTH = 854  # Default is 854
 MAX_HEIGHT = 480  # Default is 480
 
